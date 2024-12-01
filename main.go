@@ -1,13 +1,15 @@
 package main
 
 import (
+	"chirpy/internal/database"
 	"database/sql"
 	"log"
 	"net/http"
 	"os"
 	"sync/atomic"
+	"time"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
-	"chirpy/internal/database"
 	_ "github.com/lib/pq"
 )
 
@@ -15,6 +17,15 @@ type apiConfig struct {
 	db *database.Queries  // Change this line
 	fileserverHits atomic.Int32
 }
+
+type User struct {
+	ID 		  uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Email 	  string 	`json:"email"`
+}
+
+var cfg apiConfig
 
 func main() {
 	const filepathRoot = "."
@@ -32,20 +43,21 @@ func main() {
 	}
 	dbQueries := database.New(dbConn)
 
-	apiCfg := apiConfig{
+	cfg = apiConfig{
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
 	}
 
 	mux := http.NewServeMux()
-	fsHandler := apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))
+	fsHandler := cfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))
 	mux.Handle("/app/", fsHandler)
 
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 	mux.HandleFunc("POST /api/validate_chirp", handlerChirpsValidate)
+	mux.HandleFunc("/api/user", handleCreateUser)
 
-	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
-	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
+	mux.HandleFunc("POST /admin/reset", cfg.handlerReset)
+	mux.HandleFunc("GET /admin/metrics", cfg.handlerMetrics)
 
 	srv := &http.Server{
 		Addr:    ":" + port,
