@@ -7,3 +7,8 @@ VALUES (
   $1
 )
 RETURNING *;
+
+-- Deletes all the users in the database
+-- Only for development/testing purposes. Do not use.
+-- name: DeleteUsers :exec
+DELETE FROM users;

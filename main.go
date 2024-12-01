@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"os"
 	"sync/atomic"
-	"time"
-	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -16,14 +14,10 @@ import (
 type apiConfig struct {
 	db *database.Queries  // Change this line
 	fileserverHits atomic.Int32
+	platform string
 }
 
-type User struct {
-	ID 		  uuid.UUID `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Email 	  string 	`json:"email"`
-}
+
 
 var cfg apiConfig
 
@@ -46,6 +40,7 @@ func main() {
 	cfg = apiConfig{
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
+		platform:       os.Getenv("PLATFORM"),
 	}
 
 	mux := http.NewServeMux()
@@ -54,7 +49,7 @@ func main() {
 
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 	mux.HandleFunc("POST /api/validate_chirp", handlerChirpsValidate)
-	mux.HandleFunc("/api/user", handleCreateUser)
+	mux.HandleFunc("/api/users", cfg.handleCreateUser)
 
 	mux.HandleFunc("POST /admin/reset", cfg.handlerReset)
 	mux.HandleFunc("GET /admin/metrics", cfg.handlerMetrics)
