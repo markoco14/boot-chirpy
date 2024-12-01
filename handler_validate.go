@@ -6,7 +6,8 @@ import (
 	"strings"
 )
 
-func helperReplaceProfane(words []string) string {
+func helperReplaceProfane(body string) string {
+	words := strings.Split(body, " ")
 	for i, word := range words {
 		if strings.ToLower(word) == "kerfuffle" || strings.ToLower(word) == "sharbert" || strings.ToLower(word) == "fornax" {
 			words[i] = "****"
@@ -39,7 +40,7 @@ func handlerChirpsValidate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cleanedBody := helperReplaceProfane(strings.Split(params.Body, " "))
+	cleanedBody := helperReplaceProfane(params.Body)
 
 	respondWithJSON(w, http.StatusOK, returnVals{
 		CleanedBody: cleanedBody,
