@@ -36,6 +36,22 @@ func dbChirpToResponse(dbChirp database.Chirp) Chirp {
 }
 
 
+func (cfg *apiConfig) handleListChirps(w http.ResponseWriter, r *http.Request) {
+	chirps, err := cfg.db.GetChirps(r. Context())
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't get chirps", err)
+		return
+	}
+
+	responseChirps := make([]Chirp, len(chirps))
+
+	for i, chirp := range chirps {
+		responseChirps[i] = dbChirpToResponse(chirp)
+	}
+
+	respondWithJSON(w, http.StatusOK, responseChirps)
+}
+
 func (cfg *apiConfig) handleCreateChirp(w http.ResponseWriter, r *http.Request) {
 	// code goes here
 	decoder := json.NewDecoder(r.Body)
