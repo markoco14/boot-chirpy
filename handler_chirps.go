@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -35,7 +36,6 @@ func dbChirpToResponse(dbChirp database.Chirp) Chirp {
     }
 }
 
-
 func (cfg *apiConfig) handleListChirps(w http.ResponseWriter, r *http.Request) {
 	chirps, err := cfg.db.GetChirps(r. Context())
 	if err != nil {
@@ -51,6 +51,31 @@ func (cfg *apiConfig) handleListChirps(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJSON(w, http.StatusOK, responseChirps)
 }
+
+func (cfg *apiConfig) handleGetChirpByID(w http.ResponseWriter, r *http.Request) {
+	chirpID := r.PathValue("chirpID")
+
+	parsedID, err := uuid.Parse(chirpID)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid chirp ID", err)
+		return
+	}
+
+	chirp, err := cfg.db.GetChirpById(r.Context(), parsedID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			respondWithError(w, http.StatusNotFound, "Chirp not found", err)
+			return
+		}
+		respondWithError(w, http.StatusInternalServerError, "Couldn't get chirp", err)
+		return
+	}
+	
+	responseChirp := dbChirpToResponse(chirp)
+
+	respondWithJSON(w, http.StatusOK, responseChirp)
+}
+
 
 func (cfg *apiConfig) handleCreateChirp(w http.ResponseWriter, r *http.Request) {
 	// code goes here
