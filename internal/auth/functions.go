@@ -1,8 +1,12 @@
 package auth
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"fmt"
+	"time"
+
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func HashPassword(password string) (string, error) {
@@ -20,4 +24,46 @@ func CheckPasswordHash(password, hash string) error {
 		return fmt.Errorf("password does not match hash: %w", err)
 	}
 	return nil
+}
+
+func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error) {
+	claims := jwt.RegisteredClaims{
+		Issuer: "chirpy",
+		IssuedAt: jwt.NewNumericDate(time.Now()),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(expiresIn)),
+		Subject: userID.String(),
+	}
+
+	unsignedToken := jwt.NewWithClaims(
+		jwt.SigningMethodHS256,
+		claims,
+	)
+
+	signedToken, err := unsignedToken.SignedString([]byte(tokenSecret))
+	if err != nil {
+		return "", fmt.Errorf("error signing token: %w", err)
+	}
+
+	return signedToken, nil
+}
+
+func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
+	claims := &jwt.RegisteredClaims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method")
+		}
+		return []byte(tokenSecret), nil
+	})
+
+	if err != nil || !token.Valid {
+		return uuid.UUID{}, fmt.Errorf("error parsing token: %w", err)
+	}
+
+	userID, err := uuid.Parse(claims.Subject)
+	if err != nil {
+		return uuid.UUID{}, fmt.Errorf("error parsing user ID: %w", err)
+	}
+
+	return userID, nil
 }
