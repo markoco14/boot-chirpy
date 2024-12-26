@@ -2,11 +2,13 @@ package auth
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func HashPassword(password string) (string, error) {
@@ -66,4 +68,22 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 	}
 
 	return userID, nil
+}
+
+func GetBearerToken(headers http.Header) (string, error) {
+	authorizationHeader := headers.Get("Authorization")
+	if authorizationHeader == "" {
+		return "", fmt.Errorf("no Authorization header found")
+	}
+	parts := strings.Split(authorizationHeader, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		return "", fmt.Errorf("invalid Authorization header")
+	}
+
+	tokenString := strings.TrimSpace(parts[1])
+	if tokenString == "" {
+		return "", fmt.Errorf("no token found in Authorization header")
+	}
+
+	return tokenString, nil
 }
