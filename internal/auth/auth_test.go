@@ -47,33 +47,33 @@ func TestExpiredJWT(t *testing.T) {
 
 func TestGetBearerToken(t *testing.T) {
 	tests := []struct {
-		name string
-		header http.Header
-		expectedToken string
+		name           string
+		header         http.Header
+		expectedToken  string
 		expectingError bool
-	} {
+	}{
 		{
-			name: "valid header",
-			header: http.Header{"Authorization": {"Bearer mytoken"}},
-			expectedToken: "mytoken",
+			name:           "valid header",
+			header:         http.Header{"Authorization": {"Bearer mytoken"}},
+			expectedToken:  "mytoken",
 			expectingError: false,
 		},
 		{
-			name: "missing header",
-			header: http.Header{},
-			expectedToken: "",
+			name:           "missing header",
+			header:         http.Header{},
+			expectedToken:  "",
 			expectingError: true,
 		},
 		{
-			name: "no bearer prefix",
-			header: http.Header{"Authorization": {"mytoken"}},
-			expectedToken: "",
+			name:           "no bearer prefix",
+			header:         http.Header{"Authorization": {"mytoken"}},
+			expectedToken:  "",
 			expectingError: true,
 		},
 		{
-			name: "empty token",
-			header: http.Header{"Authorization": {"Bearer "}},
-			expectedToken: "",
+			name:           "empty token",
+			header:         http.Header{"Authorization": {"Bearer "}},
+			expectedToken:  "",
 			expectingError: true,
 		},
 	}

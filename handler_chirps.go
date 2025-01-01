@@ -13,31 +13,30 @@ import (
 )
 
 type createChirpRequest struct {
-	Body string `json:"body"`
+	Body   string `json:"body"`
 	UserID string `json:"user_id"`
 }
 
 type Chirp struct {
-    ID        string    `json:"id"`
-    CreatedAt string    `json:"created_at"`
-    UpdatedAt string    `json:"updated_at"`
-    Body      string    `json:"body"`
-    UserID    string    `json:"user_id"`
+	ID        string `json:"id"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+	Body      string `json:"body"`
+	UserID    string `json:"user_id"`
 }
 
-
 func dbChirpToResponse(dbChirp database.Chirp) Chirp {
-    return Chirp{
-        ID:        dbChirp.ID.String(),
-        CreatedAt: dbChirp.CreatedAt.Format(time.RFC3339),
-        UpdatedAt: dbChirp.UpdatedAt.Format(time.RFC3339),
-        Body:      dbChirp.Body,
-        UserID:    dbChirp.UserID.String(),
-    }
+	return Chirp{
+		ID:        dbChirp.ID.String(),
+		CreatedAt: dbChirp.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: dbChirp.UpdatedAt.Format(time.RFC3339),
+		Body:      dbChirp.Body,
+		UserID:    dbChirp.UserID.String(),
+	}
 }
 
 func (cfg *apiConfig) handleListChirps(w http.ResponseWriter, r *http.Request) {
-	chirps, err := cfg.db.GetChirps(r. Context())
+	chirps, err := cfg.db.GetChirps(r.Context())
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't get chirps", err)
 		return
@@ -70,12 +69,11 @@ func (cfg *apiConfig) handleGetChirpByID(w http.ResponseWriter, r *http.Request)
 		respondWithError(w, http.StatusInternalServerError, "Couldn't get chirp", err)
 		return
 	}
-	
+
 	responseChirp := dbChirpToResponse(chirp)
 
 	respondWithJSON(w, http.StatusOK, responseChirp)
 }
-
 
 func (cfg *apiConfig) handleCreateChirp(w http.ResponseWriter, r *http.Request) {
 	// code goes here
@@ -95,19 +93,17 @@ func (cfg *apiConfig) handleCreateChirp(w http.ResponseWriter, r *http.Request) 
 	cleanedBody := getCleanedBody(params.Body)
 
 	// Convert string UserID to UUID
-    userID, err := uuid.Parse(params.UserID)
-    if err != nil {
-        respondWithError(w, http.StatusBadRequest, "Invalid user ID", err)
-        return
-    }
+	userID, err := uuid.Parse(params.UserID)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid user ID", err)
+		return
+	}
 
 	// Create database params
-    dbParams := database.CreateChirpParams{
-        Body:   cleanedBody,
-        UserID: userID,
-    }
-
-
+	dbParams := database.CreateChirpParams{
+		Body:   cleanedBody,
+		UserID: userID,
+	}
 
 	chirp, err := cfg.db.CreateChirp(r.Context(), dbParams)
 	if err != nil {
@@ -119,7 +115,6 @@ func (cfg *apiConfig) handleCreateChirp(w http.ResponseWriter, r *http.Request) 
 	respondWithJSON(w, http.StatusCreated, responseChirp)
 }
 
-
 func getCleanedBody(body string) string {
 	words := strings.Split(body, " ")
 	for i, word := range words {
@@ -130,7 +125,6 @@ func getCleanedBody(body string) string {
 
 	return strings.Join(words, " ")
 }
-
 
 // func validateChirp(w http.ResponseWriter, r *http.Request) {
 // 	type parameters struct {

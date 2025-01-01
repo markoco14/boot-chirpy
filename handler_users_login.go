@@ -10,9 +10,9 @@ import (
 
 func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Email string `json:"email"`
-		Password string `json:"password"`
-		ExpiresInSeconds *int `json:"expires_in_seconds,omitempty"`
+		Email            string `json:"email"`
+		Password         string `json:"password"`
+		ExpiresInSeconds *int   `json:"expires_in_seconds,omitempty"`
 	}
 
 	type response struct {
@@ -29,7 +29,7 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 	}
 	if params.Email == "" {
 		respondWithError(w, http.StatusBadRequest, "Email is required", nil)
-		return	
+		return
 	}
 	if params.Password == "" {
 		respondWithError(w, http.StatusBadRequest, "Password is required", nil)
@@ -39,7 +39,7 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 		respondWithError(w, http.StatusBadRequest, "Password must be at least 6 characters", nil)
 		return
 	}
-	
+
 	user, err := cfg.db.GetUserByEmail(r.Context(), params.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -74,10 +74,10 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 
 	respondWithJSON(w, http.StatusOK, response{
 		User: User{
-		ID: user.ID,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		Email: user.Email,
+			ID:        user.ID,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+			Email:     user.Email,
 		},
 		Token: token,
 	})

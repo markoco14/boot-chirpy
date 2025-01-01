@@ -3,22 +3,20 @@ package main
 import (
 	"chirpy/internal/database"
 	"database/sql"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"os"
 	"sync/atomic"
-	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 )
 
 type apiConfig struct {
-	db *database.Queries  // Change this line
+	db             *database.Queries // Change this line
 	fileserverHits atomic.Int32
-	platform string
-	jwtSecret string
+	platform       string
+	jwtSecret      string
 }
-
-
 
 var cfg apiConfig
 
