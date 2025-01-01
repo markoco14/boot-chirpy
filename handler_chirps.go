@@ -8,13 +8,13 @@ import (
 	"time"
 
 	"chirpy/internal/database"
+	"chirpy/internal/auth"
 
 	"github.com/google/uuid"
 )
 
 type createChirpRequest struct {
 	Body   string `json:"body"`
-	UserID string `json:"user_id"`
 }
 
 type Chirp struct {
@@ -76,10 +76,23 @@ func (cfg *apiConfig) handleGetChirpByID(w http.ResponseWriter, r *http.Request)
 }
 
 func (cfg *apiConfig) handleCreateChirp(w http.ResponseWriter, r *http.Request) {
+
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Unauthorized", err)
+		return
+	}
+
+	tokenUUID, err := auth.ValidateJWT(token, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Unauthorized", err)
+		return
+	}
+
 	// code goes here
 	decoder := json.NewDecoder(r.Body)
 	params := createChirpRequest{}
-	err := decoder.Decode(&params)
+	err = decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Invalid request payload", err)
 		return
@@ -92,17 +105,11 @@ func (cfg *apiConfig) handleCreateChirp(w http.ResponseWriter, r *http.Request) 
 
 	cleanedBody := getCleanedBody(params.Body)
 
-	// Convert string UserID to UUID
-	userID, err := uuid.Parse(params.UserID)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID", err)
-		return
-	}
 
 	// Create database params
 	dbParams := database.CreateChirpParams{
 		Body:   cleanedBody,
-		UserID: userID,
+		UserID: tokenUUID,
 	}
 
 	chirp, err := cfg.db.CreateChirp(r.Context(), dbParams)

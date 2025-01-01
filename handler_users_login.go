@@ -35,7 +35,7 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 		respondWithError(w, http.StatusBadRequest, "Password is required", nil)
 		return
 	}
-	if len(params.Password) < 6 {
+	if len(params.Password) < 5 {
 		respondWithError(w, http.StatusBadRequest, "Password must be at least 6 characters", nil)
 		return
 	}
