@@ -2,6 +2,7 @@ package main
 
 import (
 	"chirpy/internal/auth"
+	"chirpy/internal/database"
 	"database/sql"
 	"encoding/json"
 	"net/http"
@@ -70,9 +71,19 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// TODO: store refresh token in database
+	expiresAt := time.Now().AddDate(0, 0, 60)
 
+	refreshTokenParams := database.CreateRefreshTokenParams{
+		Token:     refreshToken,
+		UserID:    user.ID,
+		ExpiresAt: expiresAt,
+	}
 
+	_, err = cfg.db.CreateRefreshToken(r.Context(), refreshTokenParams)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't store refresh token", err)
+		return
+	}
 
 	respondWithJSON(w, http.StatusOK, response{
 		User: User{
