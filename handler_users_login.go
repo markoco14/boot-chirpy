@@ -1,20 +1,23 @@
 package main
 
 import (
+	"chirpy/internal/auth"
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"chirpy/internal/auth"
+	"time"
 )
 
 func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Email string `json:"email"`
 		Password string `json:"password"`
+		ExpiresInSeconds *int `json:"expires_in_seconds,omitempty"`
 	}
 
 	type response struct {
 		User
+		Token string `json:"token"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -33,7 +36,7 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	if len(params.Password) < 6 {
-		respondWithError(w, http.StatusBadRequest, "Password must be at least 8 characters", nil)
+		respondWithError(w, http.StatusBadRequest, "Password must be at least 6 characters", nil)
 		return
 	}
 	
@@ -53,6 +56,22 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	expiresIn := time.Hour
+	if params.ExpiresInSeconds != nil {
+		requestedExpiration := time.Duration(*params.ExpiresInSeconds) * time.Second
+		if requestedExpiration < time.Hour {
+			expiresIn = requestedExpiration
+		} else {
+			expiresIn = time.Hour
+		}
+	}
+
+	token, err := auth.MakeJWT(user.ID, cfg.jwtSecret, expiresIn)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create token", err)
+		return
+	}
+
 	respondWithJSON(w, http.StatusOK, response{
 		User: User{
 		ID: user.ID,
@@ -60,6 +79,7 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 		UpdatedAt: user.UpdatedAt,
 		Email: user.Email,
 		},
+		Token: token,
 	})
 
 }
