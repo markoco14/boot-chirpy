@@ -1,10 +1,12 @@
 package auth
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
+	"crypto/rand"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -86,4 +88,17 @@ func GetBearerToken(headers http.Header) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func MakeRefreshToken() (string, error) {
+	bytes := make([]byte, 32)
+	//  rand.Rea fills the byte slice bytes with random bytes
+	_, err := rand.Read(bytes)
+	if err != nil {
+		return "", fmt.Errorf("error generating random bytes: %w", err)
+	}
+
+	refreshToken := hex.EncodeToString(bytes)
+
+	return refreshToken, nil
 }
