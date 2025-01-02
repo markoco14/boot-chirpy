@@ -61,6 +61,7 @@ func main() {
 	mux.HandleFunc("POST /api/users", cfg.handlerUsersCreate)
 	mux.HandleFunc("POST /api/login", cfg.handlerUsersLogin)
 	mux.HandleFunc("POST /api/refresh", cfg.handlerUsersRefresh)
+	mux.HandleFunc("POST /api/revoke", cfg.handlerUsersRevoke)
 
 	mux.HandleFunc("GET /api/chirps", cfg.handleListChirps)
 	mux.HandleFunc("GET /api/chirps/{chirpID}", cfg.handleGetChirpByID)
