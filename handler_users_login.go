@@ -16,7 +16,7 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 	}
 
 	type response struct {
-		User
+		ResponseUser
 		Token        string `json:"token"`
 		RefreshToken string `json:"refresh_token"`
 	}
@@ -85,7 +85,7 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	responseUser := User{
+	responseUser := ResponseUser{
 		ID:          user.ID,
 		CreatedAt:   user.CreatedAt,
 		UpdatedAt:   user.UpdatedAt,
@@ -94,7 +94,7 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 	}
 
 	respondWithJSON(w, http.StatusOK, response{
-		User:         responseUser,
+		ResponseUser:         responseUser,
 		Token:        token,
 		RefreshToken: refreshToken,
 	})

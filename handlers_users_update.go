@@ -14,7 +14,7 @@ func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request)
 	}
 
 	type response struct {
-		User
+		ResponseUser
 	}
 
 	// get access token from Authorization header
@@ -73,7 +73,7 @@ func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	responseUser := User{
+	responseUser := ResponseUser{
 		ID:          UpdatedUser.ID,
 		CreatedAt:   UpdatedUser.CreatedAt,
 		UpdatedAt:   UpdatedUser.UpdatedAt,
@@ -81,5 +81,5 @@ func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request)
 		IsChirpyRed: UpdatedUser.IsChirpyRed,
 	}
 
-	respondWithJSON(w, http.StatusOK, response{User: responseUser})
+	respondWithJSON(w, http.StatusOK, response{ResponseUser: responseUser})
 }

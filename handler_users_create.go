@@ -4,18 +4,10 @@ import (
 	"chirpy/internal/auth"
 	"chirpy/internal/database"
 	"encoding/json"
-	"github.com/google/uuid"
 	"net/http"
-	"time"
 )
 
-type User struct {
-	ID          uuid.UUID `json:"id"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Email       string    `json:"email"`
-	IsChirpyRed bool      `json:"is_chirpy_red"`
-}
+
 
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
@@ -23,7 +15,7 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		Password string `json:"password"`
 	}
 	type response struct {
-		User
+		ResponseUser
 	}
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
@@ -62,7 +54,7 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	responseUser := User{
+	responseUser := ResponseUser{
 		ID:          user.ID,
 		CreatedAt:   user.CreatedAt,
 		UpdatedAt:   user.UpdatedAt,
@@ -71,6 +63,6 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 	}
 
 	respondWithJSON(w, http.StatusCreated, response{
-		User: responseUser,
+		ResponseUser: responseUser,
 	})
 }
