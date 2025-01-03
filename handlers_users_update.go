@@ -7,11 +7,10 @@ import (
 	"net/http"
 )
 
-
 func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Email	string `json:"email"`
-		Password 		string `json:"password"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	type response struct {
@@ -29,7 +28,7 @@ func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Invalid access token", err)
 		return
-	}	
+	}
 	// decode request body
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
@@ -63,9 +62,9 @@ func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request)
 	}
 
 	UpdateParams := database.UpdateUserEmailPasswordParams{
-		Email: params.Email,
+		Email:          params.Email,
 		HashedPassword: HashedPassword,
-		ID: userUUID,
+		ID:             userUUID,
 	}
 
 	UpdatedUser, err := cfg.db.UpdateUserEmailPassword(r.Context(), UpdateParams)
@@ -75,10 +74,10 @@ func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request)
 	}
 
 	responseUser := User{
-		ID:        UpdatedUser.ID,
-		CreatedAt: UpdatedUser.CreatedAt,
-		UpdatedAt: UpdatedUser.UpdatedAt,
-		Email:     UpdatedUser.Email,
+		ID:          UpdatedUser.ID,
+		CreatedAt:   UpdatedUser.CreatedAt,
+		UpdatedAt:   UpdatedUser.UpdatedAt,
+		Email:       UpdatedUser.Email,
 		IsChirpyRed: UpdatedUser.IsChirpyRed,
 	}
 

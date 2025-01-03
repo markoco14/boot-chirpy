@@ -50,7 +50,7 @@ func (cfg *apiConfig) handleDeleteChirp(w http.ResponseWriter, r *http.Request) 
 		respondWithError(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	
+
 	deleteParams := database.DeleteChirpParams{
 		ID:     chirpUUID,
 		UserID: tokenUUID,

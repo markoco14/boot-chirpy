@@ -7,14 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"chirpy/internal/database"
 	"chirpy/internal/auth"
+	"chirpy/internal/database"
 
 	"github.com/google/uuid"
 )
 
 type createChirpRequest struct {
-	Body   string `json:"body"`
+	Body string `json:"body"`
 }
 
 type Chirp struct {
@@ -104,7 +104,6 @@ func (cfg *apiConfig) handleCreateChirp(w http.ResponseWriter, r *http.Request) 
 	}
 
 	cleanedBody := getCleanedBody(params.Body)
-
 
 	// Create database params
 	dbParams := database.CreateChirpParams{

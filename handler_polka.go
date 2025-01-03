@@ -2,9 +2,9 @@ package main
 
 import (
 	"chirpy/internal/database"
-	"net/http"
 	"encoding/json"
 	"github.com/google/uuid"
+	"net/http"
 )
 
 type PolkaData struct {
@@ -13,8 +13,8 @@ type PolkaData struct {
 
 func (cfg *apiConfig) handlePolkaWebhook(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Event string `json:"event"`
-		Data PolkaData `json:"data"`
+		Event string    `json:"event"`
+		Data  PolkaData `json:"data"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -38,22 +38,22 @@ func (cfg *apiConfig) handlePolkaWebhook(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-    dbUser, err := cfg.db.GetUserByID(r.Context(), userID)
-    if err != nil {
-        respondWithError(w, http.StatusNotFound, "Couldn't get user", err)
-        return
-    }
+	dbUser, err := cfg.db.GetUserByID(r.Context(), userID)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, "Couldn't get user", err)
+		return
+	}
 
-    updateParams := database.UpdateUserRedMembershipParams{
-        IsChirpyRed: true,
-        ID: dbUser.ID,
-    }
+	updateParams := database.UpdateUserRedMembershipParams{
+		IsChirpyRed: true,
+		ID:          dbUser.ID,
+	}
 
-    _, err = cfg.db.UpdateUserRedMembership(r.Context(), updateParams)
-    if err != nil {
-        respondWithError(w, http.StatusInternalServerError, "Couldn't update user", err)
-        return
-    }
+	_, err = cfg.db.UpdateUserRedMembership(r.Context(), updateParams)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't update user", err)
+		return
+	}
 
-    w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusNoContent)
 }
