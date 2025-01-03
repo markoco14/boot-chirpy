@@ -85,15 +85,17 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	responseUser := User{
+		ID:        user.ID,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		Email:     user.Email,
+		IsChirpyRed: user.IsChirpyRed,
+	}
+
 	respondWithJSON(w, http.StatusOK, response{
-		User: User{
-			ID:        user.ID,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-			Email:     user.Email,
-		},
+		User: responseUser,
 		Token: token,
 		RefreshToken: refreshToken,
 	})
-
 }
