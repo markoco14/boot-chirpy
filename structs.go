@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-
 type ResponseUser struct {
 	ID          uuid.UUID `json:"id"`
 	CreatedAt   time.Time `json:"created_at"`

@@ -36,10 +36,29 @@ func dbChirpToResponse(dbChirp database.Chirp) Chirp {
 }
 
 func (cfg *apiConfig) handleListChirps(w http.ResponseWriter, r *http.Request) {
-	chirps, err := cfg.db.GetChirps(r.Context())
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't get chirps", err)
-		return
+	authorID := r.URL.Query().Get("author_id")
+
+	var chirps []database.Chirp
+
+	if authorID != "" {
+		authorUUID, err := uuid.Parse(authorID)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, "Invalid author ID", err)
+			return
+		}
+		dbChirps, err := cfg.db.GetChirpsByAuthorId(r.Context(), authorUUID)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Couldn't get chirps", err)
+			return
+		}
+		chirps = dbChirps
+	} else {
+		dbChirps, err := cfg.db.GetChirps(r.Context())
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Couldn't get chirps", err)
+			return
+		}
+		chirps = dbChirps
 	}
 
 	responseChirps := make([]Chirp, len(chirps))

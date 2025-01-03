@@ -94,7 +94,7 @@ func (cfg *apiConfig) handlerUsersLogin(w http.ResponseWriter, r *http.Request) 
 	}
 
 	respondWithJSON(w, http.StatusOK, response{
-		ResponseUser:         responseUser,
+		ResponseUser: responseUser,
 		Token:        token,
 		RefreshToken: refreshToken,
 	})
