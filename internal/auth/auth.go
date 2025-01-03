@@ -102,3 +102,23 @@ func MakeRefreshToken() (string, error) {
 
 	return refreshToken, nil
 }
+
+
+func GetAPIKey(headers http.Header) (string, error) {
+	authorizationHeader := headers.Get("Authorization")
+	if authorizationHeader == "" {
+		return "", fmt.Errorf("no Authorization header found")
+	}
+	
+	parts := strings.Split(authorizationHeader, " ")
+	if len(parts) != 2 || parts[0] != "ApiKey" {
+		return "", fmt.Errorf("invalid Authorization header")
+	}
+
+	tokenString := strings.TrimSpace(parts[1])
+	if tokenString == "" {
+		return "", fmt.Errorf("no token found in Authorization header")
+	}
+
+	return tokenString, nil
+}
